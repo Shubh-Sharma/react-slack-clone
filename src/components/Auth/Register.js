@@ -12,7 +12,8 @@ class Register extends React.Component {
         email: '',
         password: '',
         passwordConfirmation: '',
-        errors: []
+        errors: [],
+        usersRef: firebase.database().ref('users')
     }
 
     handleChange = event => {
@@ -29,7 +30,7 @@ class Register extends React.Component {
             error = { message: 'Fill in all the fields' };
             this.setState({ errors: errors.concat(error) });
             return false;
-        } else if (!this.isPasswordValid()) {
+        } else if (!this.isPasswordValid(this.state)) {
             error = { message: 'Password is invalid' };
             this.setState({ errors: errors.concat(error) });
             return false;
@@ -67,7 +68,9 @@ class Register extends React.Component {
                     displayName: username,
                     photoURL: `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`
                 });
-
+                await this.saveUser(createdUser);
+                this.setState({ loading: false });
+                console.log('User saved');
             } catch (error) {
                 this.setState({ errors: this.state.errors.concat(error), loading: false });
             }
@@ -76,6 +79,13 @@ class Register extends React.Component {
             this.setState({ errors: this.state.errors.concat(error), loading: false });
             console.error(error);
         }
+    }
+
+    saveUser = createdUser => {
+        return this.state.usersRef.child(createdUser.user.uid).set({
+            name: createdUser.user.displayName,
+            avatar: createdUser.user.photoURL
+        });
     }
 
     handleInputError = (errors, inputName) => {
@@ -92,7 +102,7 @@ class Register extends React.Component {
         return (
             <Grid textAlign="center" verticalAlign="middle" className="app">
                 <Grid.Column style={{ maxWidth: 450 }}>
-                    <Header as="h2" icon color="orange" textAlign="center">
+                    <Header as="h1" icon color="orange" textAlign="center">
                         <Icon name="puzzle piece" color="orange" />
                         Register for DevChat
                     </Header>
