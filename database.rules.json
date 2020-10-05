@@ -6,7 +6,7 @@
         ".write": "auth != null",
         ".validate": "newData.hasChildren(['id', 'name', 'createdBy', 'details'])",
         "id": {
-          ".validate": "newData.val() === $channelId"
+          ".validate": "newData.val() == $channelId"
         },
         "name": {
           ".validate": "newData.val().length > 0"
